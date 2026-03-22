@@ -16,108 +16,159 @@ export async function POST(request) {
     const client = await clientPromise;
     const db = client.db("brainrot-tracker");
 
+    // Get old snapshot
+    const oldPlayer = await db.collection("players").findOne({ odiumId: String(userId) });
+    const oldAnimals = oldPlayer?.animals || [];
+    const newAnimals = playerData.animals || [];
+
+    // Build old counts
+    const oldCounts = {};
+    const oldMuts = {};
+    const oldTraits = {};
+    for (const a of oldAnimals) {
+      if (!a.name) continue;
+      oldCounts[a.name] = (oldCounts[a.name] || 0) + 1;
+      if (!oldMuts[a.name]) oldMuts[a.name] = {};
+      const m = a.mutation || "Default";
+      oldMuts[a.name][m] = (oldMuts[a.name][m] || 0) + 1;
+      if (!oldTraits[a.name]) oldTraits[a.name] = {};
+      for (const t of a.traits || []) {
+        oldTraits[a.name][t] = (oldTraits[a.name][t] || 0) + 1;
+      }
+    }
+
+    // Build new counts
+    const newCounts = {};
+    const newMuts = {};
+    const newTraits = {};
+    const newBaseGens = {};
+    const newTotalGens = {};
+    for (const a of newAnimals) {
+      if (!a.name) continue;
+      newCounts[a.name] = (newCounts[a.name] || 0) + 1;
+      if (!newMuts[a.name]) newMuts[a.name] = {};
+      const m = a.mutation || "Default";
+      newMuts[a.name][m] = (newMuts[a.name][m] || 0) + 1;
+      if (!newTraits[a.name]) newTraits[a.name] = {};
+      for (const t of a.traits || []) {
+        newTraits[a.name][t] = (newTraits[a.name][t] || 0) + 1;
+      }
+      newBaseGens[a.name] = a.baseGen || 0;
+      newTotalGens[a.name] = (newTotalGens[a.name] || 0) + (a.totalGen || 0);
+    }
+
+    // Compute deltas
+    const allNames = new Set([...Object.keys(oldCounts), ...Object.keys(newCounts)]);
+    const incOps = {};
+    const setOps = {};
+    let hasDelta = false;
+
+    for (const name of allNames) {
+      const d = (newCounts[name] || 0) - (oldCounts[name] || 0);
+      if (d !== 0) {
+        incOps["counts." + name] = d;
+        hasDelta = true;
+      }
+
+      // Mutation deltas
+      const allMuts = new Set([
+        ...Object.keys(oldMuts[name] || {}),
+        ...Object.keys(newMuts[name] || {})
+      ]);
+      for (const m of allMuts) {
+        const md = ((newMuts[name] || {})[m] || 0) - ((oldMuts[name] || {})[m] || 0);
+        if (md !== 0) {
+          incOps["mutations." + name + "." + m] = md;
+          hasDelta = true;
+        }
+      }
+
+      // Trait deltas
+      const allTrs = new Set([
+        ...Object.keys(oldTraits[name] || {}),
+        ...Object.keys(newTraits[name] || {})
+      ]);
+      for (const t of allTrs) {
+        const td = ((newTraits[name] || {})[t] || 0) - ((oldTraits[name] || {})[t] || 0);
+        if (td !== 0) {
+          incOps["traits." + name + "." + t] = td;
+          hasDelta = true;
+        }
+      }
+
+      // Set base/total gens
+      if (newBaseGens[name] !== undefined) {
+        setOps["baseGens." + name] = newBaseGens[name];
+      }
+      if (newTotalGens[name] !== undefined) {
+        setOps["totalGens." + name] = newTotalGens[name];
+      }
+    }
+
+    // Owner tracking
+    const oldOwned = new Set(Object.keys(oldCounts));
+    const newOwned = new Set(Object.keys(newCounts));
+    for (const name of newOwned) {
+      if (!oldOwned.has(name)) {
+        incOps["owners." + name] = 1;
+        hasDelta = true;
+      }
+    }
+    for (const name of oldOwned) {
+      if (!newOwned.has(name)) {
+        incOps["owners." + name] = -1;
+        hasDelta = true;
+      }
+    }
+
+    // Apply deltas
+    if (hasDelta || Object.keys(setOps).length > 0) {
+      const updateDoc = { $set: { lastUpdated: new Date(), ...setOps } };
+      if (Object.keys(incOps).length > 0) {
+        updateDoc.$inc = incOps;
+      }
+      await db.collection("totals").updateOne(
+        { _id: "global" },
+        updateDoc,
+        { upsert: true }
+      );
+    }
+
+    // Save player snapshot
+    const isNew = !oldPlayer;
+    if (isNew) {
+      await db.collection("totals").updateOne(
+        { _id: "global" },
+        { $inc: { totalPlayers: 1 } },
+        { upsert: true }
+      );
+    }
+
+    // Save rebirth/coins averages per animal
+    const avgSetOps = {};
+    for (const name of newOwned) {
+      avgSetOps["avgRebirths." + name] = playerData.rebirth || 0;
+      avgSetOps["avgCoins." + name] = playerData.coins || 0;
+    }
+    if (Object.keys(avgSetOps).length > 0) {
+      await db.collection("totals").updateOne(
+        { _id: "global" },
+        { $set: avgSetOps },
+        { upsert: true }
+      );
+    }
+
     await db.collection("players").updateOne(
       { odiumId: String(userId) },
       {
         $set: {
           odiumId: String(userId),
-          animals: playerData.animals || [],
+          animals: newAnimals,
           rebirth: playerData.rebirth || 0,
           coins: playerData.coins || 0,
           displayName: playerData.displayName || "",
           username: playerData.username || "",
           lastSeen: new Date(),
-        },
-      },
-      { upsert: true }
-    );
-
-    // Rebuild totals
-    const allPlayers = await db.collection("players").find({}).toArray();
-
-    const totals = {};
-    const mutations = {};
-    const traits = {};
-    const baseGens = {};
-    const totalGens = {};
-    const owners = {};
-    const ownerRebirths = {};
-    const ownerCoins = {};
-
-    const totalPlayerCount = allPlayers.length;
-
-    for (const player of allPlayers) {
-      const playerAnimals = {};
-
-      for (const animal of player.animals || []) {
-        const name = animal.name;
-        if (!name) continue;
-
-        totals[name] = (totals[name] || 0) + 1;
-
-        if (!mutations[name]) mutations[name] = {};
-        const mut = animal.mutation || "Default";
-        mutations[name][mut] = (mutations[name][mut] || 0) + 1;
-
-        if (!traits[name]) traits[name] = {};
-        for (const trait of animal.traits || []) {
-          traits[name][trait] = (traits[name][trait] || 0) + 1;
-        }
-
-        if (!baseGens[name]) baseGens[name] = [];
-        baseGens[name].push(animal.baseGen || 0);
-
-        if (!totalGens[name]) totalGens[name] = [];
-        totalGens[name].push(animal.totalGen || 0);
-
-        playerAnimals[name] = true;
-      }
-
-      for (const name of Object.keys(playerAnimals)) {
-        if (!owners[name]) owners[name] = 0;
-        owners[name]++;
-
-        if (!ownerRebirths[name]) ownerRebirths[name] = [];
-        ownerRebirths[name].push(player.rebirth || 0);
-
-        if (!ownerCoins[name]) ownerCoins[name] = [];
-        ownerCoins[name].push(player.coins || 0);
-      }
-    }
-
-    // Compute averages
-    const avgRebirths = {};
-    const avgCoins = {};
-    const avgBaseGen = {};
-    const sumTotalGen = {};
-
-    for (const [name, rebs] of Object.entries(ownerRebirths)) {
-      avgRebirths[name] = rebs.reduce((a, b) => a + b, 0) / rebs.length;
-    }
-    for (const [name, cs] of Object.entries(ownerCoins)) {
-      avgCoins[name] = cs.reduce((a, b) => a + b, 0) / cs.length;
-    }
-    for (const [name, gens] of Object.entries(baseGens)) {
-      avgBaseGen[name] = gens.length > 0 ? gens[0] : 0;
-    }
-    for (const [name, gens] of Object.entries(totalGens)) {
-      sumTotalGen[name] = gens.reduce((a, b) => a + b, 0);
-    }
-
-    await db.collection("totals").updateOne(
-      { _id: "global" },
-      {
-        $set: {
-          counts: totals,
-          mutations,
-          traits,
-          owners,
-          avgRebirths,
-          avgCoins,
-          baseGens: avgBaseGen,
-          totalGens: sumTotalGen,
-          totalPlayers: totalPlayerCount,
-          lastUpdated: new Date(),
         },
       },
       { upsert: true }
