@@ -1,45 +1,75 @@
 ﻿*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:"Segoe UI",system-ui,sans-serif;background:#0a0a0a;color:#e0e0e0;min-height:100vh}
-.container{max-width:700px;margin:0 auto;padding:30px 16px}
-h1{text-align:center;font-size:2.2em;margin-bottom:6px;background:linear-gradient(135deg,#ff6b6b,#feca57,#48dbfb,#ff9ff3,#54a0ff);background-size:300% 300%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:gradient 4s ease infinite}
-@keyframes gradient{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
-.subtitle{text-align:center;color:#555;margin-bottom:24px;font-size:.95em}
+body{font-family:"Segoe UI",system-ui,sans-serif;background:#0d1117;color:#c9d1d9;min-height:100vh}
+.container{max-width:900px;margin:0 auto;padding:24px 16px}
+h1{text-align:center;font-size:2em;margin-bottom:4px;color:#e6edf3}
+.subtitle{text-align:center;color:#555;margin-bottom:20px;font-size:.9em}
 .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#2ecc71;margin-right:6px;animation:pulse 2s ease infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-.stats{display:flex;gap:12px;margin-bottom:20px}
-.stat-card{flex:1;background:#141414;border:1px solid #222;border-radius:12px;padding:16px;text-align:center}
-.stat-number{font-size:1.8em;font-weight:700;color:#48dbfb}
-.stat-label{color:#666;font-size:.85em;margin-top:4px}
-.search{width:100%;padding:12px 16px;border-radius:10px;border:1px solid #282828;background:#141414;color:#fff;font-size:1em;margin-bottom:12px;outline:none;transition:border-color .2s}
-.search:focus{border-color:#48dbfb}
-.search::placeholder{color:#444}
-.filters{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px}
-.filter-btn{padding:6px 12px;border-radius:8px;border:1px solid #333;background:#141414;color:#888;font-size:.8em;cursor:pointer;transition:all .2s}
-.filter-btn:hover{border-color:#555}
-.filter-btn.active{background:#222;color:#fff;border-color:#48dbfb}
-.list{display:flex;flex-direction:column;gap:6px}
-.item{display:flex;align-items:center;padding:12px 16px;background:#141414;border-radius:10px;border:1px solid #1e1e1e;transition:border-color .15s,background .15s}
-.item:hover{border-color:#333;background:#1a1a1a}
+.stats{display:flex;gap:10px;margin-bottom:16px}
+.stats-row{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.stat-card{flex:1;background:#161b22;border:1px solid #21262d;border-radius:10px;padding:12px;text-align:center;min-width:100px}
+.stat-number{font-size:1.4em;font-weight:700;color:#58a6ff}
+.stat-label{color:#8b949e;font-size:.75em;margin-top:2px}
+.stat-sub{font-size:.55em;color:#8b949e;font-weight:400}
+.search{width:100%;padding:10px 14px;border-radius:8px;border:1px solid #21262d;background:#0d1117;color:#c9d1d9;font-size:.9em;margin-bottom:12px;outline:none}
+.search:focus{border-color:#58a6ff}
+.search::placeholder{color:#484f58}
+.player-search{margin-bottom:16px}
+.not-found{text-align:center;color:#f85149;padding:8px;font-size:.9em}
+.filter-label{color:#8b949e;font-size:.8em;margin-bottom:6px}
+.filters{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px}
+.filter-btn{padding:4px 10px;border-radius:6px;border:1px solid #21262d;background:#161b22;color:#8b949e;font-size:.75em;cursor:pointer;transition:all .15s}
+.filter-btn:hover{border-color:#30363d}
+.filter-btn.active{color:#fff;border-color:#58a6ff;background:#1c2433}
+.table-header{display:flex;padding:8px 12px;background:#161b22;border-radius:8px;margin-bottom:4px;font-size:.7em;color:#8b949e;font-weight:600;text-transform:uppercase}
+.th-rank{width:40px}.th-rarity{width:100px}.th-name{flex:1}.th-rebirth{width:80px;text-align:center}.th-coins{width:80px;text-align:center}.th-pct{width:100px;text-align:right}
+.list{display:flex;flex-direction:column;gap:3px}
+.table-row{display:flex;align-items:center;padding:10px 12px;background:#161b22;border-radius:8px;border:1px solid #21262d;transition:all .15s;cursor:pointer}
+.table-row:hover{border-color:#58a6ff;background:#1c2128}
+.td-rank{width:40px;color:#8b949e;font-weight:600;font-size:.8em}
+.td-rarity{width:100px;font-size:.65em;padding:2px 8px;border-radius:4px;font-weight:600;text-align:center;display:inline-block}
+.td-name{flex:1;font-weight:500;font-size:.9em;padding-left:8px}
+.td-rebirth{width:80px;text-align:center;color:#8b949e;font-size:.85em}
+.td-coins{width:80px;text-align:center;color:#8b949e;font-size:.85em}
+.td-pct{width:100px;text-align:right}
+.pct-value{font-weight:700;font-size:1em;color:#58a6ff}
+.pct-sub{display:block;font-size:.65em;color:#8b949e}
 .clickable{cursor:pointer}
-.clickable:hover{border-color:#48dbfb}
-.rank{color:#444;font-weight:700;min-width:36px;font-size:.9em}
-.rank.gold{color:#ffd700}
-.rank.silver{color:#c0c0c0}
-.rank.bronze{color:#cd7f32}
-.name{flex:1;font-weight:500;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.count{font-weight:700;font-size:1.1em;color:#48dbfb;font-variant-numeric:tabular-nums}
-.loading{text-align:center;color:#444;padding:40px;font-size:1.1em}
-.footer{text-align:center;color:#333;margin-top:24px;font-size:.8em}
-.back-btn{background:none;border:1px solid #333;color:#e0e0e0;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:1em;margin-bottom:20px;transition:border-color .2s}
-.back-btn:hover{border-color:#48dbfb}
-.section-title{font-size:1.3em;font-weight:700;color:#feca57;margin-top:24px;margin-bottom:12px}
-.rarity-tag{font-size:.65em;padding:2px 8px;border-radius:6px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
-.rarity-badge{font-size:.85em;padding:4px 12px;border-radius:8px;font-weight:600}
-.rarity-common{background:#3a3a3a;color:#ccc}
-.rarity-rare{background:#1a3a5c;color:#48dbfb}
-.rarity-epic{background:#3a1a5c;color:#bf5fff}
-.rarity-legendary{background:#5c3a1a;color:#feca57}
-.rarity-mythic{background:#5c1a2a;color:#ff6b6b}
-.rarity-brainrotgod{background:#1a5c3a;color:#2ecc71}
-.rarity-secret{background:#5c1a5c;color:#ff9ff3}
-.rarity-og{background:#4a3a00;color:#ffd700}
+.back-btn{background:none;border:1px solid #21262d;color:#c9d1d9;padding:6px 14px;border-radius:6px;cursor:pointer;font-size:.9em;margin-bottom:16px}
+.back-btn:hover{border-color:#58a6ff}
+.section-title{font-size:1.1em;font-weight:700;color:#e6edf3;margin-top:20px;margin-bottom:10px;border-bottom:1px solid #21262d;padding-bottom:6px}
+.subsection{font-size:.85em;font-weight:600;color:#8b949e;margin-top:14px;margin-bottom:8px}
+.owner-info{background:#161b22;border:1px solid #21262d;border-radius:8px;padding:10px;text-align:center;color:#8b949e;font-size:.85em;margin-top:12px}
+.bar-item{display:flex;align-items:center;padding:8px 12px;background:#161b22;border-radius:8px;border:1px solid #21262d;margin-bottom:3px;gap:8px}
+.bar-left{display:flex;align-items:center;gap:6px;min-width:120px}
+.bar-name{font-weight:500;font-size:.85em}
+.bar-track{flex:1;height:6px;background:#21262d;border-radius:3px;overflow:hidden}
+.bar-fill{height:100%;background:#8b949e;border-radius:3px;transition:width .3s}
+.bar-right{display:flex;align-items:center;gap:6px;min-width:100px;justify-content:flex-end}
+.bar-count{font-weight:700;font-size:.9em;color:#58a6ff}
+.bar-pct{color:#8b949e;font-size:.75em}
+.mut-dot{width:10px;height:10px;border-radius:50%;background:#8b949e;display:inline-block}
+.mut-gold{background:#ffd700}
+.mut-diamond{background:#48dbfb}
+.mut-rainbow{background:linear-gradient(135deg,#ff6b6b,#feca57,#48dbfb,#ff9ff3)}
+.mut-candy{background:#ff9ff3}
+.mut-halloween{background:#ff6348}
+.mut-lava{background:#8b949e}
+.mut-yinyang{background:#8b949e}
+.mut-default{background:#8b949e}
+.trait-dot{width:10px;height:10px;border-radius:50%;background:#8b949e;display:inline-block}
+.trait-fill{background:#feca57}
+.rarity-badge{font-size:.8em;padding:3px 10px;border-radius:6px;font-weight:600}
+.rarity-common{background:#2d333b;color:#adbac7}
+.rarity-rare{background:#132744;color:#58a6ff}
+.rarity-epic{background:#2a1744;color:#bc8cff}
+.rarity-legendary{background:#3d2e00;color:#feca57}
+.rarity-mythic{background:#3d0f14;color:#f85149}
+.rarity-brainrotgod{background:#0d3321;color:#3fb950}
+.rarity-secret{background:#3d0f3d;color:#ff9ff3}
+.rarity-og{background:#3d2e00;color:#ffd700}
+.loading{text-align:center;color:#484f58;padding:30px;font-size:1em}
+.footer{text-align:center;color:#30363d;margin-top:20px;font-size:.75em}
+.item{display:flex;align-items:center;padding:10px 14px;background:#161b22;border-radius:8px;border:1px solid #21262d;margin-bottom:3px}
+.item:hover{border-color:#30363d}
+.name{flex:1;font-weight:500}.count{font-weight:700;color:#58a6ff}
