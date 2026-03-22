@@ -1,40 +1,81 @@
 ﻿import { NextResponse } from "next/server";
 import clientPromise from "../../../lib/mongodb";
+
 export async function POST(request) {
   try {
     const body = await request.json();
-    const { secret, userId, brainrots } = body;
-    if (secret !== process.env.API_SECRET)
+    const { secret, userId, animals } = body;
+
+    if (secret !== process.env.API_SECRET) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    if (!userId)
+    }
+
+    if (!userId) {
       return NextResponse.json({ error: "Missing userId" }, { status: 400 });
+    }
+
     const client = await clientPromise;
     const db = client.db("brainrot-tracker");
-    const oldSnapshot = await db.collection("snapshots").findOne({ odiumId: String(userId) });
-    const oldCounts = oldSnapshot?.brainrots || {};
-    const newCounts = brainrots || {};
-    const allKeys = new Set([...Object.keys(oldCounts), ...Object.keys(newCounts)]);
-    const incOps = {};
-    let hasDelta = false;
-    for (const key of allKeys) {
-      const d = (newCounts[key] || 0) - (oldCounts[key] || 0);
-      if (d !== 0) { incOps["counts." + key] = d; hasDelta = true; }
-    }
-    if (hasDelta) {
-      await db.collection("totals").updateOne(
-        { _id: "global" },
-        { $inc: incOps, $set: { lastUpdated: new Date() } },
-        { upsert: true }
-      );
-    }
-    await db.collection("snapshots").updateOne(
+
+    // Save this player's full animal list
+    await db.collection("players").updateOne(
       { odiumId: String(userId) },
-      { $set: { brainrots: newCounts, lastSeen: new Date() } },
+      {
+        $set: {
+          animals: animals || [],
+          lastSeen: new Date(),
+        },
+      },
       { upsert: true }
     );
+
+    // Rebuild global totals from all players
+    const allPlayers = await db.collection("players").find({}).toArray();
+
+    const totals = {};
+    const mutations = {};
+    const traits = {};
+
+    for (const player of allPlayers) {
+      for (const animal of player.animals || []) {
+        const name = animal.name;
+        if (!name) continue;
+
+        // Count totals
+        totals[name] = (totals[name] || 0) + 1;
+
+        // Count mutations per animal
+        if (!mutations[name]) mutations[name] = {};
+        const mut = animal.mutation || "Default";
+        mutations[name][mut] = (mutations[name][mut] || 0) + 1;
+
+        // Count traits per animal
+        if (!traits[name]) traits[name] = {};
+        for (const trait of animal.traits || []) {
+          traits[name][trait] = (traits[name][trait] || 0) + 1;
+        }
+      }
+    }
+
+    await db.collection("totals").updateOne(
+      { _id: "global" },
+      {
+        $set: {
+          counts: totals,
+          mutations: mutations,
+          traits: traits,
+          lastUpdated: new Date(),
+        },
+      },
+      { upsert: true }
+    );
+
     return NextResponse.json({ ok: true });
   } catch (error) {
     console.error("Update error:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
   }
 }

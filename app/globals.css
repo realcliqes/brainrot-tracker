@@ -1,1 +1,45 @@
-﻿*{margin:0;padding:0;box-sizing:border-box}body{font-family:"Segoe UI",system-ui,sans-serif;background:#0a0a0a;color:#e0e0e0;min-height:100vh}.container{max-width:700px;margin:0 auto;padding:30px 16px}h1{text-align:center;font-size:2.4em;margin-bottom:6px;background:linear-gradient(135deg,#ff6b6b,#feca57,#48dbfb,#ff9ff3,#54a0ff);background-size:300% 300%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:gradient 4s ease infinite}@keyframes gradient{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}.subtitle{text-align:center;color:#555;margin-bottom:24px;font-size:.95em}.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#2ecc71;margin-right:6px;animation:pulse 2s ease infinite}@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}.stats{display:flex;gap:12px;margin-bottom:20px}.stat-card{flex:1;background:#141414;border:1px solid #222;border-radius:12px;padding:16px;text-align:center}.stat-number{font-size:1.8em;font-weight:700;color:#48dbfb}.stat-label{color:#666;font-size:.85em;margin-top:4px}.search{width:100%;padding:12px 16px;border-radius:10px;border:1px solid #282828;background:#141414;color:#fff;font-size:1em;margin-bottom:16px;outline:none;transition:border-color .2s}.search:focus{border-color:#48dbfb}.search::placeholder{color:#444}.list{display:flex;flex-direction:column;gap:6px}.item{display:flex;align-items:center;padding:12px 16px;background:#141414;border-radius:10px;border:1px solid #1e1e1e;transition:border-color .15s,background .15s}.item:hover{border-color:#333;background:#1a1a1a}.rank{color:#444;font-weight:700;min-width:36px;font-size:.9em}.rank.gold{color:#ffd700}.rank.silver{color:#c0c0c0}.rank.bronze{color:#cd7f32}.name{flex:1;font-weight:500}.count{font-weight:700;font-size:1.1em;color:#48dbfb;font-variant-numeric:tabular-nums}.loading{text-align:center;color:#444;padding:40px;font-size:1.1em}.footer{text-align:center;color:#333;margin-top:24px;font-size:.8em}
+﻿*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"Segoe UI",system-ui,sans-serif;background:#0a0a0a;color:#e0e0e0;min-height:100vh}
+.container{max-width:700px;margin:0 auto;padding:30px 16px}
+h1{text-align:center;font-size:2.2em;margin-bottom:6px;background:linear-gradient(135deg,#ff6b6b,#feca57,#48dbfb,#ff9ff3,#54a0ff);background-size:300% 300%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:gradient 4s ease infinite}
+@keyframes gradient{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+.subtitle{text-align:center;color:#555;margin-bottom:24px;font-size:.95em}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#2ecc71;margin-right:6px;animation:pulse 2s ease infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.stats{display:flex;gap:12px;margin-bottom:20px}
+.stat-card{flex:1;background:#141414;border:1px solid #222;border-radius:12px;padding:16px;text-align:center}
+.stat-number{font-size:1.8em;font-weight:700;color:#48dbfb}
+.stat-label{color:#666;font-size:.85em;margin-top:4px}
+.search{width:100%;padding:12px 16px;border-radius:10px;border:1px solid #282828;background:#141414;color:#fff;font-size:1em;margin-bottom:12px;outline:none;transition:border-color .2s}
+.search:focus{border-color:#48dbfb}
+.search::placeholder{color:#444}
+.filters{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px}
+.filter-btn{padding:6px 12px;border-radius:8px;border:1px solid #333;background:#141414;color:#888;font-size:.8em;cursor:pointer;transition:all .2s}
+.filter-btn:hover{border-color:#555}
+.filter-btn.active{background:#222;color:#fff;border-color:#48dbfb}
+.list{display:flex;flex-direction:column;gap:6px}
+.item{display:flex;align-items:center;padding:12px 16px;background:#141414;border-radius:10px;border:1px solid #1e1e1e;transition:border-color .15s,background .15s}
+.item:hover{border-color:#333;background:#1a1a1a}
+.clickable{cursor:pointer}
+.clickable:hover{border-color:#48dbfb}
+.rank{color:#444;font-weight:700;min-width:36px;font-size:.9em}
+.rank.gold{color:#ffd700}
+.rank.silver{color:#c0c0c0}
+.rank.bronze{color:#cd7f32}
+.name{flex:1;font-weight:500;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.count{font-weight:700;font-size:1.1em;color:#48dbfb;font-variant-numeric:tabular-nums}
+.loading{text-align:center;color:#444;padding:40px;font-size:1.1em}
+.footer{text-align:center;color:#333;margin-top:24px;font-size:.8em}
+.back-btn{background:none;border:1px solid #333;color:#e0e0e0;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:1em;margin-bottom:20px;transition:border-color .2s}
+.back-btn:hover{border-color:#48dbfb}
+.section-title{font-size:1.3em;font-weight:700;color:#feca57;margin-top:24px;margin-bottom:12px}
+.rarity-tag{font-size:.65em;padding:2px 8px;border-radius:6px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.rarity-badge{font-size:.85em;padding:4px 12px;border-radius:8px;font-weight:600}
+.rarity-common{background:#3a3a3a;color:#ccc}
+.rarity-rare{background:#1a3a5c;color:#48dbfb}
+.rarity-epic{background:#3a1a5c;color:#bf5fff}
+.rarity-legendary{background:#5c3a1a;color:#feca57}
+.rarity-mythic{background:#5c1a2a;color:#ff6b6b}
+.rarity-brainrotgod{background:#1a5c3a;color:#2ecc71}
+.rarity-secret{background:#5c1a5c;color:#ff9ff3}
+.rarity-og{background:#4a3a00;color:#ffd700}
